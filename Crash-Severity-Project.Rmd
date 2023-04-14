@@ -1,0 +1,298 @@
+---
+title: "Project Document"
+author: "Asif Irfanullah Masum & Ifrat Zaman"
+date: "04/13/2023"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
+```
+
+
+
+## Install and load the necessary packages
+```{r message=FALSE}
+#install.packages(caTools)
+#install.packages(dplyr)
+#install.packages(nnet)
+#install.packages(e1071)
+#install.packages(ggplot2)
+library(caTools)
+library(dplyr)
+library(nnet)
+library(e1071)
+library(ggplot2)
+```
+
+## Data Preprocessing and Wrangling
+
+### Loading Data and Exploration 
+
+```{r}
+crash_dataset <- read.csv("project_dataset.csv", header = TRUE)
+  
+# Display the dimensions of the Crash Dataset
+cat("Dimensions for Crash Dataset: ", paste(dim(crash_dataset), collapse = " x "))
+
+# Display the structure of the Crash Dataset
+cat("\nStructure for Crash Dataset:\n")
+str(crash_dataset)
+
+```
+
+### Dividing Dataset into Natural Factor and Human Factor Subset
+
+```{r}
+natural_factor_crash <- subset(crash_dataset, select = c(injy_svty_cd, wthr_cd, lit_cd, rd_cond_cd, mdot_regn_cd))
+human_factor_crash <- subset(crash_dataset, select = c(injy_svty_cd, vehc_dfct_cd, rstr_not_used_fail, hzrd_actn_cd, alch_susp_ind, drug_susp_ind))
+
+# Display the dimensions of the Natural Factor Subset
+cat("Dimensions for Natural Factor Subset : ", paste(dim(natural_factor_crash), collapse = " x "), "\n")
+
+# Display the structure of the Natural Factor Subset
+cat("Structure for Natural Factor Subset :\n")
+str(natural_factor_crash)
+
+# Display the dimensions of the Human Factor Subset
+cat("Dimensions for Human Factor Subset : ", paste(dim(human_factor_crash), collapse = " x "), "\n")
+
+# Display the structure of the Human Factor Subset
+cat("Structure for Human Factor Subset :\n")
+str(human_factor_crash)
+```
+
+### Data Cleaning by removing duplicate and NULL values for Natural Factor Subset
+
+```{r}
+cat("Total number of NULL values in Natural Factor Subset : ", paste(sum(is.na(natural_factor_crash))), "\n")
+cat("Total number of duplicate values Natural Factor Subset : ", paste(sum(duplicated(natural_factor_crash))), "\n")
+
+natural_factor_crash <- na.omit(natural_factor_crash)
+natural_factor_crash <- unique(natural_factor_crash)
+
+cat("Dimensions for Natural Factor Subset after data cleaning: ", paste(dim(natural_factor_crash), collapse = " x "), "\n")
+```
+
+### Data Cleaning by removing duplicate and NULL values for Human Factor Subset
+
+```{r}
+cat("Total number of NULL values in Human Factor Subset: ", sum(is.na(human_factor_crash)), "\n")
+cat("Total number of duplicate values in Human Factor Subset: ", sum(duplicated(human_factor_crash)), "\n")
+
+
+human_factor_crash <- na.omit(human_factor_crash)
+human_factor_crash <- unique(human_factor_crash)
+
+cat("Dimensions for Human Factor Subset after data cleaning: ", paste(dim(human_factor_crash), collapse = " x "), "\n")
+```
+
+## Data Visualization for Natural Factors Subset
+
+### Bar plot of Injury Severity Code
+
+```{r}
+ggplot(natural_factor_crash, aes(x = injy_svty_cd)) +
+  geom_bar(color = "cyan", fill = "cyan") +
+  labs(title = "Bar plot of Injury Severity Code")
+```
+
+### Bar plot of Weather Code
+
+```{r}
+ggplot(natural_factor_crash, aes(x = wthr_cd)) +
+  geom_bar(color = "lightblue", fill = "lightblue") +
+  labs(title = "Bar plot of Weather Code")
+```
+
+### Bar plot of Lighting Code
+
+```{r}
+ggplot(natural_factor_crash, aes(x = lit_cd)) +
+  geom_bar(color = "lightgreen", fill = "lightgreen") +
+  labs(title = "Bar plot of Lighting Code")
+```
+
+### Bar plot of Road Condition Code
+
+```{r}
+ggplot(natural_factor_crash, aes(x = rd_cond_cd)) +
+  geom_bar(color = "black", fill = "black") +
+  labs(title = "Bar plot of Road Condition Code")
+```
+
+### Bar plot of MDOT Region Code
+
+```{r}
+ggplot(natural_factor_crash, aes(x = mdot_regn_cd)) +
+  geom_bar(color = "yellow", fill = "yellow") +
+  labs(title = "Bar plot of MDOT Region Code")
+```
+
+### Scatter plot of Weather Code vs. Injury Severity Code
+
+```{r}
+  ggplot(data = natural_factor_crash) +
+  geom_point(mapping = aes(x = injy_svty_cd , y = wthr_cd), color = "orange", position="jitter") +
+  labs(title = "Scatter plot of Weather Code Code vs. Injury Severity Code")
+```
+
+### Scatter plot of Lighting Code vs. Injury Severity Code
+
+```{r}
+  ggplot(data = natural_factor_crash) +
+  geom_point(mapping = aes(x = injy_svty_cd, y = lit_cd), color = "orange", position="jitter") +
+  labs(title = "Scatter plot of Lighting Code vs. Injury Severity Code")
+```
+
+### Scatter plot of Road Condition Code vs. Injury Severity Code
+
+```{r}
+  ggplot(data = natural_factor_crash) +
+  geom_point(mapping = aes(x = injy_svty_cd, y = rd_cond_cd), color = "orange", position="jitter") +
+  labs(title = "Scatter plot of Road Condition Code vs. Injury Severity Code")
+```
+
+### Scatter plot of MDOT Region Code vs. Injury Severity Code
+
+```{r}
+  ggplot(data = natural_factor_crash) +
+  geom_point(mapping = aes(x = injy_svty_cd, y = mdot_regn_cd), color = "orange", position="jitter") +
+  labs(title = "Scatter plot of MDOT Region Code vs. Injury Severity Code")
+```
+
+## Data Visualization for Human Factors Subset
+
+### Bar plot of Injury Severity Code
+
+```{r}
+ggplot(human_factor_crash, aes(x = injy_svty_cd)) +
+  geom_bar(color = "cyan", fill = "cyan") +
+  labs(title = "Bar plot of Injury Severity Code")
+```
+
+### Bar plot of Vehicle Defect Code
+
+```{r}
+ggplot(human_factor_crash, aes(x = vehc_dfct_cd)) +
+  geom_bar(color = "lightblue", fill = "lightblue") +
+  labs(title = "Bar plot of Vehicle Defect Code")
+```
+
+### Bar plot of Restraint Usage Code
+
+```{r}
+ggplot(human_factor_crash, aes(x = rstr_not_used_fail)) +
+  geom_bar(color = "lightgreen", fill = "lightgreen") +
+  labs(title = "Bar plot of Restraint Usage Code")
+```
+
+### Bar plot of Hazardous Action Code
+
+```{r}
+ggplot(human_factor_crash, aes(x = hzrd_actn_cd)) +
+  geom_bar(color = "black", fill = "black") +
+  labs(title = "Bar plot of Hazardous Action Code")
+```
+
+### Bar plot of Alcohol Usage Code
+
+```{r}
+ggplot(human_factor_crash, aes(x = alch_susp_ind)) +
+  geom_bar(color = "yellow", fill = "yellow") +
+  labs(title = "Bar plot of Alcohol Usage Code")
+```
+
+### Bar plot of Drugs Usage Code
+
+```{r}
+ggplot(human_factor_crash, aes(x = drug_susp_ind)) +
+  geom_bar(color = "red", fill = "red") +
+  labs(title = "Bar plot of Drugs Usage Code")
+```
+
+### Scatter plot of Vehicle Defect Code vs. Injury Severity Code
+
+```{r}
+  ggplot(data = human_factor_crash) +
+  geom_point(mapping = aes(x = injy_svty_cd , y = vehc_dfct_cd), color = "lightblue", position="jitter") +
+  labs(title = "Scatter plot of Vehicle Defect Code Code vs. Injury Severity Code")
+```
+
+### Scatter plot of Restraint Usage Code vs. Injury Severity Code
+
+```{r}
+  ggplot(data = human_factor_crash) +
+  geom_point(mapping = aes(x = injy_svty_cd, y = rstr_not_used_fail), color = "lightblue", position="jitter") +
+  labs(title = "Scatter plot of Restraint Usage Code vs. Injury Severity Code")
+```
+
+### Scatter plot of Hazardous Action Code vs. Injury Severity Code
+
+```{r}
+  ggplot(data = human_factor_crash) +
+  geom_point(mapping = aes(x = injy_svty_cd, y = hzrd_actn_cd), color = "lightblue", position="jitter") +
+  labs(title = "Scatter plot of Hazardous Action Code vs. Injury Severity Code")
+```
+
+### Scatter plot of Alcohol Usage Code vs. Injury Severity Code
+
+```{r}
+  ggplot(data = human_factor_crash) +
+  geom_point(mapping = aes(x = injy_svty_cd, y = alch_susp_ind), color = "lightblue", position="jitter") +
+  labs(title = "Scatter plot of Alcohol Usage Code vs. Injury Severity Code")
+```
+
+### Scatter plot of Drugs Usage Code vs. Injury Severity Code
+
+```{r}
+  ggplot(data = human_factor_crash) +
+  geom_point(mapping = aes(x = injy_svty_cd, y = drug_susp_ind), color = "lightblue", position="jitter") +
+  labs(title = "Scatter plot of Drugs Usage Code vs. Injury Severity Code")
+```
+
+## Spliting Data for Training set and Testing set for Natural Factor Subset
+
+```{r}
+set.seed(123)
+split <- sample.split(natural_factor_crash$injy_svty_cd, SplitRatio = 0.8)
+nfcTrainData <- subset(natural_factor_crash, split == TRUE)
+nfcTestData <- subset(natural_factor_crash, split == FALSE)
+```
+
+## Model Training on Natural Factor Subset
+
+```{r}
+# Train a multi-class logistic regression model
+logRegModel1 <- multinom(injy_svty_cd ~ ., data = nfcTrainData)
+
+# Make predictions on the test data
+predictions1 <- predict(logRegModel1, nfcTestData)
+
+# Check the metrics of the model
+cat("Model Accuracy for Human Factor Subset", mean(predictions1 == nfcTestData$injy_svty_cd), "\n")
+```
+
+## Spliting Data for Training set and Testing set for Human Factor Subset
+
+```{r}
+set.seed(123)
+split <- sample.split(human_factor_crash$injy_svty_cd, SplitRatio = 0.8)
+hfcTrainData <- subset(human_factor_crash, split == TRUE)
+hfcTestData <- subset(human_factor_crash, split == FALSE)
+```
+
+## Model Training on Human Factor Subset
+
+```{r}
+# Train a multi-class logistic regression model
+logRegModel2 <- multinom(injy_svty_cd ~ ., data = hfcTrainData)
+
+# Make predictions on the test data
+predictions2 <- predict(logRegModel2, hfcTestData)
+
+# Check the accuracy of the model
+cat("Model Accuracy for Human Factor Subset", mean(predictions2 == hfcTestData$injy_svty_cd), "\n")
+```
