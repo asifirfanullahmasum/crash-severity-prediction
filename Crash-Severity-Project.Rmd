@@ -1,5 +1,5 @@
 ---
-title: "Project Document"
+title: "Crash Severity Prediction"
 author: "Asif Irfanullah Masum & Ifrat Zaman"
 date: "04/13/2023"
 output:
@@ -11,10 +11,28 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 ```
+## Motivation and Overview
+- Road traffic crashes are a major global issue, causing approximately 1.25 million deaths and 50 million injuries each year. To address this problem, various government agencies have implemented strategies to improve road safety by using road traffic crash data from various organizations. One such data was used to devise a machine learning model to predict real-time crashes in freeway work zones, demonstrating the potential of machine learning techniques in analyzing and interpreting crash data to provide insights for improving road safety. Accurate predictions of injury severity can assist first responders and medical personnel to prioritize care for victims of road crashes and help local transportation agencies identify hazardous conditions and avoid severe road crash incidents. Therefore, the proposed project aims to develop two machine learning prediction models, one based on environmental factors and the other on human factors, to predict freeway crash injury severity using a crash dataset. The decision to divide the project into two components was based on the different end users of the models, with the first component intended for use by local transportation agencies and police, and the second component to be developed as a consumer application. These models will provide valuable insights to improve post-crash care for victims of road crashes and develop accurate diagnosis and remedial measures for road traffic operational problems.
 
+## Related Work
 
+- According to some statistics, approximately 1.25 million people die and 50 million people are injured every year due to vehicular crashes [1]. The economic and social burden associated with these crashes is enormous, and the costs and consequences of the losses are significant. Therefore, it is essential to develop effective interventions to prevent, or at least minimize crash-related fatalities and injuries.
 
-## Install and load the necessary packages
+- A study is mentioned that uses machine learning to predict real-time crashes in freeway work zones, comparing Convolutional Neural Network and Binary Logistic Regression models [2]. The study used crash and traffic data from several freeways in the Los Angeles region and found that the Convolutional Neural Network showed promising results, achieving a global accuracy of 79.50% in predicting crashes. The text emphasizes that machine learning techniques can revolutionize how crash datasets are analyzed and interpreted, providing insights to improve road safety and inform the development of more effective interventions and policies to prevent future accidents.
+
+[1] Abdulhafedh, A. (2017) Road Traffic Crash Data: An Overview on Sources, Problems, and Collection Methods. Journal of Transportation Technologies, 7, 206-219. doi: 10.4236/jtts.2017.72015.
+
+[2] Wang, J., Song, H., Fu, T., Behan, M., Jie, L., He, Y., & Shangguan, Q. (2022). Crash prediction for freeway work zones in real time: A comparison between convolutional neural network and binary logistic regression model. International Journal of Transportation Science and Technology, 11(3), 484–495. https://doi.org/10.1016/j.ijtst.2021.06.002
+
+## Data
+
+- The dataset used in this project consists of 399,794 observations provided by the Michigan State Police, Office of Highway Safety Planning, and obtained from Western Michigan University Transportation Research Center for Livable Communities (TCRLC). The dataset includes information about environmental and roadway factors, the degree of injury suffered by the involved party, the number of units deployed to the scene of the event, unique ID of the involved individuals, and the type of party involved in the event. It also includes details such as the type of crash, weather conditions, lighting conditions, road conditions, speed limit, and the MDOT region in which the crash occurred. Other features include the defective vehicle part contributing to the crash, the involved party’s age, gender, hazardous action which contributed to the crash, an indicator of whether the involved party had been drinking or using drugs before the crash, and the year and traffic volume at the time of the event. The dataset contains 29 features in total.
+
+## Exploratory Data Analysis
+
+- To perform Exploratory Data Analysis, we have investigated the number of observations, dimensions, structure of dataset. We have also cleaned the data by removing null values and duplicate values. In addition to that, we used GGPLOT to visualize the different aspect of dataset. We have used scatter plot and bar plot to visualize the dataset since most of the dataset are categorical in nature.
+
+### Install and load the necessary packages
 ```{r message=FALSE}
 #install.packages(caTools)
 #install.packages(dplyr)
@@ -28,9 +46,9 @@ library(e1071)
 library(ggplot2)
 ```
 
-## Data Preprocessing and Wrangling
+### Data Preprocessing and Wrangling
 
-### Loading Data and Exploration 
+#### Loading Data and Exploration 
 
 ```{r}
 crash_dataset <- read.csv("project_dataset.csv", header = TRUE)
@@ -44,7 +62,7 @@ str(crash_dataset)
 
 ```
 
-### Dividing Dataset into Natural Factor and Human Factor Subset
+#### Dividing Dataset into Natural Factor and Human Factor Subset
 
 ```{r}
 natural_factor_crash <- subset(crash_dataset, select = c(injy_svty_cd, wthr_cd, lit_cd, rd_cond_cd, mdot_regn_cd, invl_prty_key))
@@ -66,7 +84,7 @@ cat("Structure for Human Factor Subset :\n")
 str(human_factor_crash)
 ```
 
-### Data Cleaning by removing duplicate and NULL values for Natural Factor Subset
+#### Data Cleaning by removing duplicate and NULL values for Natural Factor Subset
 
 ```{r}
 cat("Total number of NULL values in Natural Factor Subset : ", paste(sum(is.na(natural_factor_crash))), "\n")
@@ -78,7 +96,7 @@ natural_factor_crash <- unique(natural_factor_crash)
 cat("Dimensions for Natural Factor Subset after data cleaning: ", paste(dim(natural_factor_crash), collapse = " x "), "\n")
 ```
 
-### Data Cleaning by removing duplicate and NULL values for Human Factor Subset
+#### Data Cleaning by removing duplicate and NULL values for Human Factor Subset
 
 ```{r}
 cat("Total number of NULL values in Human Factor Subset: ", sum(is.na(human_factor_crash)), "\n")
@@ -91,9 +109,9 @@ human_factor_crash <- unique(human_factor_crash)
 cat("Dimensions for Human Factor Subset after data cleaning: ", paste(dim(human_factor_crash), collapse = " x "), "\n")
 ```
 
-## Data Visualization for Natural Factors Subset
+### Data Visualization for Natural Factors Subset
 
-### Bar plot of Injury Severity Code
+#### Bar plot of Injury Severity Code
 
 ```{r}
 ggplot(natural_factor_crash, aes(x = injy_svty_cd)) +
@@ -101,7 +119,7 @@ ggplot(natural_factor_crash, aes(x = injy_svty_cd)) +
   labs(title = "Bar plot of Injury Severity Code")
 ```
 
-### Bar plot of Weather Code
+#### Bar plot of Weather Code
 
 ```{r}
 ggplot(natural_factor_crash, aes(x = wthr_cd)) +
@@ -109,7 +127,7 @@ ggplot(natural_factor_crash, aes(x = wthr_cd)) +
   labs(title = "Bar plot of Weather Code")
 ```
 
-### Bar plot of Lighting Code
+#### Bar plot of Lighting Code
 
 ```{r}
 ggplot(natural_factor_crash, aes(x = lit_cd)) +
@@ -117,7 +135,7 @@ ggplot(natural_factor_crash, aes(x = lit_cd)) +
   labs(title = "Bar plot of Lighting Code")
 ```
 
-### Bar plot of Road Condition Code
+#### Bar plot of Road Condition Code
 
 ```{r}
 ggplot(natural_factor_crash, aes(x = rd_cond_cd)) +
@@ -125,7 +143,7 @@ ggplot(natural_factor_crash, aes(x = rd_cond_cd)) +
   labs(title = "Bar plot of Road Condition Code")
 ```
 
-### Bar plot of MDOT Region Code
+#### Bar plot of MDOT Region Code
 
 ```{r}
 ggplot(natural_factor_crash, aes(x = mdot_regn_cd)) +
@@ -133,7 +151,7 @@ ggplot(natural_factor_crash, aes(x = mdot_regn_cd)) +
   labs(title = "Bar plot of MDOT Region Code")
 ```
 
-### Scatter plot of Weather Code vs. Injury Severity Code
+#### Scatter plot of Weather Code vs. Injury Severity Code
 
 ```{r}
   ggplot(data = natural_factor_crash) +
@@ -141,7 +159,7 @@ ggplot(natural_factor_crash, aes(x = mdot_regn_cd)) +
   labs(title = "Scatter plot of Weather Code Code vs. Injury Severity Code")
 ```
 
-### Scatter plot of Lighting Code vs. Injury Severity Code
+#### Scatter plot of Lighting Code vs. Injury Severity Code
 
 ```{r}
   ggplot(data = natural_factor_crash) +
@@ -149,7 +167,7 @@ ggplot(natural_factor_crash, aes(x = mdot_regn_cd)) +
   labs(title = "Scatter plot of Lighting Code vs. Injury Severity Code")
 ```
 
-### Scatter plot of Road Condition Code vs. Injury Severity Code
+#### Scatter plot of Road Condition Code vs. Injury Severity Code
 
 ```{r}
   ggplot(data = natural_factor_crash) +
@@ -157,7 +175,7 @@ ggplot(natural_factor_crash, aes(x = mdot_regn_cd)) +
   labs(title = "Scatter plot of Road Condition Code vs. Injury Severity Code")
 ```
 
-### Scatter plot of MDOT Region Code vs. Injury Severity Code
+#### Scatter plot of MDOT Region Code vs. Injury Severity Code
 
 ```{r}
   ggplot(data = natural_factor_crash) +
@@ -165,9 +183,9 @@ ggplot(natural_factor_crash, aes(x = mdot_regn_cd)) +
   labs(title = "Scatter plot of MDOT Region Code vs. Injury Severity Code")
 ```
 
-## Data Visualization for Human Factors Subset
+### Data Visualization for Human Factors Subset
 
-### Bar plot of Injury Severity Code
+#### Bar plot of Injury Severity Code
 
 ```{r}
 ggplot(human_factor_crash, aes(x = injy_svty_cd)) +
@@ -175,7 +193,7 @@ ggplot(human_factor_crash, aes(x = injy_svty_cd)) +
   labs(title = "Bar plot of Injury Severity Code")
 ```
 
-### Bar plot of Vehicle Defect Code
+#### Bar plot of Vehicle Defect Code
 
 ```{r}
 ggplot(human_factor_crash, aes(x = vehc_dfct_cd)) +
@@ -183,7 +201,7 @@ ggplot(human_factor_crash, aes(x = vehc_dfct_cd)) +
   labs(title = "Bar plot of Vehicle Defect Code")
 ```
 
-### Bar plot of Restraint Usage Code
+#### Bar plot of Restraint Usage Code
 
 ```{r}
 ggplot(human_factor_crash, aes(x = rstr_not_used_fail)) +
@@ -191,7 +209,7 @@ ggplot(human_factor_crash, aes(x = rstr_not_used_fail)) +
   labs(title = "Bar plot of Restraint Usage Code")
 ```
 
-### Bar plot of Hazardous Action Code
+#### Bar plot of Hazardous Action Code
 
 ```{r}
 ggplot(human_factor_crash, aes(x = hzrd_actn_cd)) +
@@ -199,7 +217,7 @@ ggplot(human_factor_crash, aes(x = hzrd_actn_cd)) +
   labs(title = "Bar plot of Hazardous Action Code")
 ```
 
-### Bar plot of Alcohol Usage Code
+#### Bar plot of Alcohol Usage Code
 
 ```{r}
 ggplot(human_factor_crash, aes(x = alch_susp_ind)) +
@@ -207,7 +225,7 @@ ggplot(human_factor_crash, aes(x = alch_susp_ind)) +
   labs(title = "Bar plot of Alcohol Usage Code")
 ```
 
-### Bar plot of Drugs Usage Code
+#### Bar plot of Drugs Usage Code
 
 ```{r}
 ggplot(human_factor_crash, aes(x = drug_susp_ind)) +
@@ -215,7 +233,7 @@ ggplot(human_factor_crash, aes(x = drug_susp_ind)) +
   labs(title = "Bar plot of Drugs Usage Code")
 ```
 
-### Scatter plot of Vehicle Defect Code vs. Injury Severity Code
+#### Scatter plot of Vehicle Defect Code vs. Injury Severity Code
 
 ```{r}
   ggplot(data = human_factor_crash) +
@@ -223,7 +241,7 @@ ggplot(human_factor_crash, aes(x = drug_susp_ind)) +
   labs(title = "Scatter plot of Vehicle Defect Code Code vs. Injury Severity Code")
 ```
 
-### Scatter plot of Restraint Usage Code vs. Injury Severity Code
+#### Scatter plot of Restraint Usage Code vs. Injury Severity Code
 
 ```{r}
   ggplot(data = human_factor_crash) +
@@ -231,7 +249,7 @@ ggplot(human_factor_crash, aes(x = drug_susp_ind)) +
   labs(title = "Scatter plot of Restraint Usage Code vs. Injury Severity Code")
 ```
 
-### Scatter plot of Hazardous Action Code vs. Injury Severity Code
+#### Scatter plot of Hazardous Action Code vs. Injury Severity Code
 
 ```{r}
   ggplot(data = human_factor_crash) +
@@ -239,7 +257,7 @@ ggplot(human_factor_crash, aes(x = drug_susp_ind)) +
   labs(title = "Scatter plot of Hazardous Action Code vs. Injury Severity Code")
 ```
 
-### Scatter plot of Alcohol Usage Code vs. Injury Severity Code
+#### Scatter plot of Alcohol Usage Code vs. Injury Severity Code
 
 ```{r}
   ggplot(data = human_factor_crash) +
@@ -247,7 +265,7 @@ ggplot(human_factor_crash, aes(x = drug_susp_ind)) +
   labs(title = "Scatter plot of Alcohol Usage Code vs. Injury Severity Code")
 ```
 
-### Scatter plot of Drugs Usage Code vs. Injury Severity Code
+#### Scatter plot of Drugs Usage Code vs. Injury Severity Code
 
 ```{r}
   ggplot(data = human_factor_crash) +
@@ -255,7 +273,12 @@ ggplot(human_factor_crash, aes(x = drug_susp_ind)) +
   labs(title = "Scatter plot of Drugs Usage Code vs. Injury Severity Code")
 ```
 
-## Spliting Data for Training set and Testing set for Natural Factor Subset
+## Data Analysis
+
+- The text discusses using the Multinomial Logistic Regression algorithm to predict freeway crash injury severity based on environmental and human factors, such as weather conditions, road type, and driver behavior. The dataset is split into train-test datasets using the 80-20 split ratio, and the train set is used to train the model. The accuracy score is used as the evaluation metric, and the model achieved an accuracy score of 87.43% for environmental factors and 87.45% for human factors. These results demonstrate the potential of using machine learning techniques to improve road safety by identifying hazardous conditions and informing the development of effective interventions and policies to prevent future accidents.
+
+
+### Spliting Data for Training set and Testing set for Natural Factor Subset
 
 ```{r}
 set.seed(123)
@@ -264,7 +287,7 @@ nfcTrainData <- subset(natural_factor_crash, split == TRUE)
 nfcTestData <- subset(natural_factor_crash, split == FALSE)
 ```
 
-## Model Training on Natural Factor Subset
+### Model Training on Natural Factor Subset
 
 ```{r}
 # Train a multi-class logistic regression model
@@ -274,10 +297,10 @@ logRegModel1 <- multinom(injy_svty_cd ~ ., data = nfcTrainData)
 predictions1 <- predict(logRegModel1, nfcTestData)
 
 # Check the metrics of the model
-cat("Model Accuracy for Human Factor Subset", mean(predictions1 == nfcTestData$injy_svty_cd), "\n")
+cat("Model Accuracy for Natural Factor Subset", mean(predictions1 == nfcTestData$injy_svty_cd), "\n")
 ```
 
-## Spliting Data for Training set and Testing set for Human Factor Subset
+### Spliting Data for Training set and Testing set for Human Factor Subset
 
 ```{r}
 set.seed(123)
@@ -286,7 +309,7 @@ hfcTrainData <- subset(human_factor_crash, split == TRUE)
 hfcTestData <- subset(human_factor_crash, split == FALSE)
 ```
 
-## Model Training on Human Factor Subset
+### Model Training on Human Factor Subset
 
 ```{r}
 # Train a multi-class logistic regression model
@@ -298,3 +321,7 @@ predictions2 <- predict(logRegModel2, hfcTestData)
 # Check the accuracy of the model
 cat("Model Accuracy for Human Factor Subset", mean(predictions2 == hfcTestData$injy_svty_cd), "\n")
 ```
+
+## Narrative and Summary
+
+- In this project, a machine learning model was developed using the Multinomial Logistic Regression algorithm to predict freeway crash injury severity based on various environmental and human factors. The model achieved an accuracy score of 87.43% for the environmental factors subset whereas the accuracy score achieved for the human factors subset is 87.45%; therefore, demonstrating its potential to accurately predict the severity of freeway crashes and provide valuable insights to improve post-crash care for victims of road crashes. The results indicate that machine learning techniques can be used to analyze and interpret crash datasets effectively, providing insights to improve road safety and inform the development of more effective interventions and policies to prevent future accidents. By predicting injury severity, the model can assist first responders and medical personnel in prioritizing the most seriously injured victims and providing them with the necessary medical care.  In conclusion, this project highlights the potential of machine learning techniques in predicting freeway crash injury severity and improving road safety. Future work could involve exploring other machine learning algorithms and ensembling methods to further improve the accuracy and robustness of the model. Overall, this project has shown that machine learning techniques can play a vital role in enhancing road safety and saving lives.
