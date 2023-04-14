@@ -5,6 +5,7 @@ date: "04/13/2023"
 output:
   html_document:
     df_print: paged
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -46,8 +47,9 @@ str(crash_dataset)
 ### Dividing Dataset into Natural Factor and Human Factor Subset
 
 ```{r}
-natural_factor_crash <- subset(crash_dataset, select = c(injy_svty_cd, wthr_cd, lit_cd, rd_cond_cd, mdot_regn_cd))
-human_factor_crash <- subset(crash_dataset, select = c(injy_svty_cd, vehc_dfct_cd, rstr_not_used_fail, hzrd_actn_cd, alch_susp_ind, drug_susp_ind))
+natural_factor_crash <- subset(crash_dataset, select = c(injy_svty_cd, wthr_cd, lit_cd, rd_cond_cd, mdot_regn_cd, invl_prty_key))
+human_factor_crash <- subset(crash_dataset, select = c(injy_svty_cd, vehc_dfct_cd, rstr_not_used_fail, hzrd_actn_cd, alch_susp_ind, drug_susp_ind,invl_prty_key
+))
 
 # Display the dimensions of the Natural Factor Subset
 cat("Dimensions for Natural Factor Subset : ", paste(dim(natural_factor_crash), collapse = " x "), "\n")
